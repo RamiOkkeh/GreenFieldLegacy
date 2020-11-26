@@ -1,8 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { connect } from 'react-redux';
 import FormInput from '../form-input/form-input.component';
 import CustomButton from '../custom-button/custom-button.component';
-// import './sign-in.styles.css';
+import './sign-in.styles.css';
 
 class SignIn extends React.Component {
   constructor(props) {
@@ -28,11 +29,11 @@ class SignIn extends React.Component {
     })
       .then(response => response.json())
       .then((data) => {
-        if (data.success){
+        if (data.success) {
           localStorage.setItem("jwt-auth", data.token)
           localStorage.setItem("current-user", data.displayName)
         }
-         
+
         else {
           throw Error("incorrect credentials")
         }
@@ -40,7 +41,6 @@ class SignIn extends React.Component {
       })
       .then(() => { window.location.reload() })
       .catch((error) => {
-        alert(error)
         console.error('Error:', error);
       })
 
@@ -56,14 +56,15 @@ class SignIn extends React.Component {
   render() {
     return (
       <div className='sign-in'>
-        <form onSubmit={this.handleSubmit}>
+        <button ><Link to="/">Return To Home Page</Link> </button>
+        <form className='sign-in-form'onSubmit={this.handleSubmit}>
           <h2>Sign In </h2>
           <FormInput
             name='email'
             type='email'
             handleChange={this.handleChange}
             value={this.state.email}
-            label='email'
+            placeholder='email'
             required
           />
           <FormInput
@@ -71,7 +72,7 @@ class SignIn extends React.Component {
             type='password'
             value={this.state.password}
             handleChange={this.handleChange}
-            label='password'
+            placeholder='password'
             required
           />
           <div className='buttons'>
@@ -89,4 +90,20 @@ class SignIn extends React.Component {
   }
 }
 
-export default SignIn;
+
+// Redux 
+const mapStateToProps = (state) => {
+  return {
+    user: state.user,
+
+  }
+}
+const mapDispatchToProps = (dispatch) => {
+  return {
+
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(SignIn);
+
+

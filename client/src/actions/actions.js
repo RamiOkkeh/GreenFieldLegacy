@@ -1,22 +1,34 @@
 // Creates Redux functions that edit the Redux variables to be used by any React||Redux component
 
-export const showMenu = (z) => {
+export const store = (z) => {
     return {
-        type: 'SHOW_MENU',
-        showMenu: z
+        type: 'STORE-USER',
+        user: z
     }
 }
-export const showSearch = (z) => {
+
+export const hotels = (z) => {
     return {
-        type: 'SHOW_SEARCH',
-        showSearch: z
+        type: 'STORE-HOTELS',
+        user: z
     }
 }
-export const saveSearch = (cityInfo, cityName) => {
+export const searchCity = (z) => {
+    return {
+        type: 'SEARCH_CITY',
+        CitySearch: z
+    }
+}
+export const searchHotel = (z) => {
+    return {
+        type: 'SEARCH_HOTEL',
+        HotelSearch: z
+    }
+}
+export const saveSearch = (citysInfo) => {
     return {
         type: 'SAVE_SEARCH',
-        cityInfo: cityInfo,
-        cityName: cityName
+        results: citysInfo
     }
 }
 export const drink = (water) => {

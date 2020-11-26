@@ -1,23 +1,23 @@
 
-import UserSign from "./pages/UserSign/UserSign";
 import { Switch, Route, Redirect, BrowserRouter } from 'react-router-dom';
-import ResetPassword from "./pages/ResetPassword/ResetPassword.jsx";
+import ForgotPassword from "./pages/ForgotPassword/ForgotPassword.jsx";
 import NewPassword from "./pages/NewPassword/NewPassword.jsx";
-import { showMenu, showSearch, saveSearch, drink } from './actions/actions';
+import { searchHotel, saveSearch } from './actions/actions'; // drink
 import CardList from "./components/CardList/cardList";
+import Footer from "./components/Footer/Footer.jsx";
 import Profile from "./pages/profile/profile.jsx";
 import HomePage from "./pages/homePage/homePage";
+import UserSign from "./pages/UserSign/UserSign";
 import { connect } from 'react-redux';
 import React from "react";
-import './App.css';
 
 class App extends React.Component {
   constructor() {
     super()
     this.state = {
       currentUser: localStorage.getItem("current-user"),
-      checkIn: "2020-11-24",
-      checkOut: "2021-11-30",
+      checkIn: "2020-12-24",
+      checkOut: "2020-12-30",
       searchValue: "",
       adults: 1,
       resultsArray: [],
@@ -67,7 +67,6 @@ class App extends React.Component {
   }
 
   handleSeachButtonClick = () => {
-    console.log(this.props)
     this.setState({resultsArray: []})
     let oldState = this.props.results[this.state.searchValue]
     if (oldState) {
@@ -81,13 +80,8 @@ class App extends React.Component {
         fetch(`https://hotels4.p.rapidapi.com/locations/search?locale=en_US&query=${this.state.searchValue}`, {
           "method": "GET",
           "headers": {
-            // "x-rapidapi-key": "19fe5ca383msh9591c981cf8ec3ap1768e4jsn0d1c67890d8e",
-            // "x-rapidapi-host": "hotels4.p.rapidapi.com",
-            // "x-rapidapi-key": "d13943b4a2msh2fce0d567fcd48cp1b7894jsn85cca0ffc256",
-            // "x-rapidapi-host": "hotels4.p.rapidapi.com",
             "x-rapidapi-key": "60c160b303msh7203505fed160fep1856fejsn13da7ee5b70d",
             "x-rapidapi-host": "hotels4.p.rapidapi.com",
-            // "useQueryString": true
           }
         })
           .then(response => {
@@ -96,16 +90,13 @@ class App extends React.Component {
           .then((data) => {
             console.log(data)
             if (data) {
+              if (data.suggestions[0]) {
               if (data.suggestions[0].entities[0]) {
                 this.setState({ cityCenter: data.suggestions[0].entities[0] })
                 allData.cityCenter = data.suggestions[0].entities[0]
                 fetch(`https://hotels4.p.rapidapi.com/properties/list?destinationId=${data.suggestions[0].entities[0].destinationId}&pageNumber=1&checkIn=${this.state.checkIn}&checkOut=${this.state.checkOut}&pageSize=25&adults1=1&currency=USD&locale=en_US&sortOrder=PRICE`, {
                   "method": "GET",
                   "headers": {
-                    // "x-rapidapi-key": "19fe5ca383msh9591c981cf8ec3ap1768e4jsn0d1c67890d8e",
-                    // "x-rapidapi-host": "hotels4.p.rapidapi.com",
-                    // "x-rapidapi-key": "d13943b4a2msh2fce0d567fcd48cp1b7894jsn85cca0ffc256",
-                    // "x-rapidapi-host": "hotels4.p.rapidapi.com",
                     "x-rapidapi-key": "60c160b303msh7203505fed160fep1856fejsn13da7ee5b70d",
                     "x-rapidapi-host": "hotels4.p.rapidapi.com",
                   }
@@ -114,9 +105,12 @@ class App extends React.Component {
                     return response.json()
                   })
                   .then(data => {
+                    console.log(data)
+                    this.props.searchHotel(data.data.body.searchResults.results)
                     this.setState({ resultsArray: data.data.body.searchResults.results })
                     allData.resultsArray = data.data.body.searchResults.results
-                    this.props.saveSearch(allData, this.state.searchValue)
+                    this.props.results[this.state.searchValue] = allData
+                    this.props.saveSearch(this.props.results)
                     let local = JSON.parse(localStorage.getItem('hotel-info')) || {}
                     local[this.state.searchValue] = allData
                     localStorage.setItem('hotel-info', JSON.stringify(local))
@@ -139,7 +133,7 @@ class App extends React.Component {
                 })
               }
             }
-          })
+          }})
           .catch(err => {
             console.error(err);
           });
@@ -148,16 +142,17 @@ class App extends React.Component {
   }
 
   componentDidMount() {
-    var storage = JSON.parse(localStorage.getItem('hotel-info')) || {}
-    this.props.drink(storage)
-    console.log(this.props)
+    // var storage = JSON.parse(localStorage.getItem('hotel-info')) || {}
+    // this.props.drink(storage)
+    // console.log(this.props)
+
     //checking the auth
     if(this.state.currentUser){const requestOptions = {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
         'jwt-auth': localStorage.getItem('jwt-auth')
-      },
+      }
     }
     fetch("/user/auth", requestOptions)
       .then(res => res.json())
@@ -169,7 +164,6 @@ class App extends React.Component {
       })}
   }
   render() {
-    console.log(this.props)
     return (
       <div className="App">
         <BrowserRouter>
@@ -186,33 +180,41 @@ class App extends React.Component {
               ? (<Profile adults={this.state.adults} dateDifferenceNumber={this.dateDifferenceNumber} handleSeachButtonClick={this.handleSeachButtonClick} currentUser={this.state.currentUser} cityAndCountry={this.handleCityAndCountry} checkIn={this.handleCheckInChange} checkOut={this.handleCheckOutChange} searchValue={this.handlesearchValueChange} />)
               : (<Redirect to='/' />)} />
           <Switch>
-            <Route exact path="/" render={() => <HomePage handleAdultsChange={this.handleAdultsChange} handleSeachButtonClick={this.handleSeachButtonClick} currentUser={this.state.currentUser} cityAndCountry={this.handleCityAndCountry} checkIn={this.handleCheckInChange} checkOut={this.handleCheckOutChange} searchValue={this.handlesearchValueChange} />} />
+            <Route exact path="/" render={() => <div><HomePage handleAdultsChange={this.handleAdultsChange} handleSeachButtonClick={this.handleSeachButtonClick} currentUser={this.state.currentUser} cityAndCountry={this.handleCityAndCountry} checkIn={this.handleCheckInChange} checkOut={this.handleCheckOutChange} searchValue={this.handlesearchValueChange} /><Footer /></div>} />
 
             <Route exact path="/cardlist" render={() => <CardList refresh={this.refresh} cityCenter={this.getCityCenter} handleAdultsChange={this.handleAdultsChange} adults={this.state.adults} dateDifferenceNumber={this.dateDifferenceNumber} reservationArray={this.handleReservationArray} favoritesArray={this.handleFavoritesArray} handleSeachButtonClick={this.handleSeachButtonClick} currentUser={this.state.currentUser} cityAndCountry={this.handleCityAndCountry} checkIn={this.handleCheckInChange} checkOut={this.handleCheckOutChange} searchValue={this.handlesearchValueChange} resultsArray={this.state.resultsArray} />} />
-            <Route path="/forgot-password" component={ResetPassword} />
+            <Route path="/forgot-password" component={ForgotPassword} />
 
             <Route path="/reset/:token" component={NewPassword} />
-
     
           </Switch>
+          
         </BrowserRouter>
       </div>
     );
   }
 }
-
 const mapStateToProps = (state) => {
-  return {
-    showMenu: state.showMenu,
-    results: state.results
-  }
+  try {
+    const serializedState = localStorage.getItem("state");
+    if (serializedState === null) {
+        return undefined
+    }
+    return JSON.parse(serializedState)
 }
-
+catch (e) {
+    console(e);
+    return;
+}
+  // return {
+  //   HotelSearch: state.HotelSearch,
+  //   results: state.results
+  // }
+}
 const mapDispatchToProps = (dispatch) => {
   return {
-    show: (z) => { dispatch(showMenu(z)) },
-    hide: (z) => { dispatch(showSearch(z)) },
-    drink: (z) => { dispatch(drink(z)) },
+    // drink: (z) => { dispatch(drink(z)) },
+    searchHotel: (z) => { dispatch(searchHotel(z)) },
     saveSearch: (cityInfo, cityName) => { dispatch(saveSearch(cityInfo, cityName)) },
   }
 }

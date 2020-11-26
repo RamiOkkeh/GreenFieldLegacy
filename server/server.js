@@ -5,7 +5,7 @@ const path = require("path")
 
 let app = express();
 
-db()
+db();
 
 app.use(express.static(__dirname + '/../client/build'));
 app.use(express.json());

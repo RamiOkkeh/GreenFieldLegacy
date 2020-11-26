@@ -11,7 +11,7 @@ import {
 
 export default function MaterialUIPickers({ name, checkInOrOut }) {
     // The first commit of Material-UI
-    const [selectedDate, setSelectedDate] = React.useState(new Date('2020-11-21T21:11:54'));
+    const [selectedDate, setSelectedDate] = React.useState(new Date());
     const [open, setOpen] = React.useState(false);
 
     const handleDateChange = (date) => {
@@ -33,11 +33,9 @@ export default function MaterialUIPickers({ name, checkInOrOut }) {
                         variant="inline"
                         format="MM/dd/yyyy"
                         margin="normal"
-                        id="date-picker-inline"
                         onOpen={() => setOpen(true)}
                         onClose={() => setOpen(false)}
                         open={open}
-                        label={name}
                         value={selectedDate}
                         onChange={handleDateChange}
                         KeyboardButtonProps={{

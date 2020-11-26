@@ -93,8 +93,10 @@ router.post('/signin', (req, res) => {
   User.findOne({ email: req.body.email })
     .then(data => {
       if (data) {
+        // console.log("here =========>", data)
         bcrypt.compare(req.body.password, data.password)
           .then(data1 => {
+            // console.log("here =========>", data1)
             if (data1) {
               jwt.sign({ id: data._id }, 'mysecret', { expiresIn: 86400 }, (err, token) => {
                 if (err) return res.json({ message: "err creating the token" })
@@ -103,7 +105,12 @@ router.post('/signin', (req, res) => {
                   token: token,
                   displayName: data.displayName,
                   admin: data.admin,
-                  master: data.master
+                  master: data.master,
+                  // reservations: data.reservations,
+                  // favorites: data.favorites,
+                  // email: data.email,
+                  // id: data._id
+
                 })
               })
             } else {
@@ -140,13 +147,13 @@ router.post("/forgot-password", async (req, res, next) => {
   await User.findOneAndUpdate({ email: req.body.email }, { expiration: expireDate, token: token, used: 0 })
 
     const msg = {
-      to: process.env.SENDGRID_TO, // Change to your recipient  //req.headers.host  //process.env.SENDGRID_TO
+      to: user.email, // Change to your recipient  //req.headers.host  //process.env.SENDGRID_TO
       from: process.env.SENDGRID_FROM, // Change to your verified sender  
       subject: 'From hotels.com',
       text: 'Weclome to our hotel booking website, Hope you Enjoy your experience. You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' +
         'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
         'http://' + "localhost:3000" + '/reset/' + token + '\n\n' +
-        'If you did not request this, please ignore this email and your password will remain unchanged.\n'
+        'The link will remain valid for 3 hours only. If you did not request this, please ignore this email and your password will remain unchanged.\n'
     }
     await sgMail
       .send(msg)
@@ -178,5 +185,23 @@ router.post("/reset/:token", async(req, res) => {
   }
 
 })
+
+router.post("/getuser", (req, res) => {
+  User.findOne({ displayName: req.body.displayName })
+    .then((data) => res.status(200).send(data))
+    .catch((err) => res.status(404).send("error getting the data"))
+})
+// update the loged in user
+router.put('/:displayName', async(req, res) => {
+    User.update(req.params, req.body, (err, data) => {
+      console.log(req.params, req.body, data)
+      if (data.ok === 0) {
+        res.sendStatus(400)
+      }
+      else {
+        res.json(data)
+      }
+    })
+});
 
 module.exports = router
