@@ -93,7 +93,6 @@ class CardList extends React.Component {
     }
 
     render() {
-        console.log(this.props)
         const { handleAdultsChange, adults, dateDifferenceNumber, checkIn, checkOut, searchValue, cityAndCountry, handleSeachButtonClick, currentUser } = this.props
         return (
             <div >

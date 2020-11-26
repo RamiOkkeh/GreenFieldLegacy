@@ -164,6 +164,7 @@ class App extends React.Component {
       })}
   }
   render() {
+    console.log(this.props)
     return (
       <div className="App">
         <BrowserRouter>
@@ -198,13 +199,17 @@ const mapStateToProps = (state) => {
   try {
     const serializedState = localStorage.getItem("state");
     if (serializedState === null) {
-        return undefined
+      return {
+        results: state.results
+      }
     }
     return JSON.parse(serializedState)
 }
 catch (e) {
     console(e);
-    return;
+    return {
+      results: state.results
+    };
 }
   // return {
   //   HotelSearch: state.HotelSearch,
