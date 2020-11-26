@@ -3,7 +3,7 @@ import UserSign from "./pages/UserSign/UserSign";
 import { Switch, Route, Redirect, BrowserRouter } from 'react-router-dom';
 import ResetPassword from "./pages/ResetPassword/ResetPassword.jsx";
 import NewPassword from "./pages/NewPassword/NewPassword.jsx";
-import { showMenu, showSearch, saveSearch } from './actions/actions';
+import { showMenu, showSearch, saveSearch, drink } from './actions/actions';
 import CardList from "./components/CardList/cardList";
 import Profile from "./pages/profile/profile.jsx";
 import HomePage from "./pages/homePage/homePage";
@@ -67,8 +67,8 @@ class App extends React.Component {
   }
 
   handleSeachButtonClick = () => {
-    this.setState({resultsArray: []})
     console.log(this.props)
+    this.setState({resultsArray: []})
     let oldState = this.props.results[this.state.searchValue]
     if (oldState) {
       this.setState({
@@ -117,7 +117,9 @@ class App extends React.Component {
                     this.setState({ resultsArray: data.data.body.searchResults.results })
                     allData.resultsArray = data.data.body.searchResults.results
                     this.props.saveSearch(allData, this.state.searchValue)
-                    console.log(allData, this.props)
+                    let local = JSON.parse(localStorage.getItem('hotel-info')) || {}
+                    local[this.state.searchValue] = allData
+                    localStorage.setItem('hotel-info', JSON.stringify(local))
                   })
                   .then(data => { })
                   .catch(err => {
@@ -146,6 +148,9 @@ class App extends React.Component {
   }
 
   componentDidMount() {
+    var storage = JSON.parse(localStorage.getItem('hotel-info')) || {}
+    this.props.drink(storage)
+    console.log(this.props)
     //checking the auth
     if(this.state.currentUser){const requestOptions = {
       method: 'GET',
@@ -164,6 +169,7 @@ class App extends React.Component {
       })}
   }
   render() {
+    console.log(this.props)
     return (
       <div className="App">
         <BrowserRouter>
@@ -206,6 +212,7 @@ const mapDispatchToProps = (dispatch) => {
   return {
     show: (z) => { dispatch(showMenu(z)) },
     hide: (z) => { dispatch(showSearch(z)) },
+    drink: (z) => { dispatch(drink(z)) },
     saveSearch: (cityInfo, cityName) => { dispatch(saveSearch(cityInfo, cityName)) },
   }
 }

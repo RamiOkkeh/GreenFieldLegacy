@@ -1,5 +1,3 @@
-import { combineReducers } from 'redux';
-
 // Creates the Redux Store
 const initState = {
     test: [
@@ -21,7 +19,12 @@ const rootReducer = (state = initState, action) => {
         state.results[action.cityName] = action.cityInfo
         return state
     }
+    if (action.type === "DRINK_WATER") {
+        return {
+            ...state,
+            results: action.water
+        }
+    }
     return state;
 }
-const combReducer = combineReducers({rootReducer})
 export default rootReducer;

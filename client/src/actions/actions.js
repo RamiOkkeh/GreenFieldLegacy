@@ -12,10 +12,16 @@ export const showSearch = (z) => {
         showSearch: z
     }
 }
-export const saveSearch = (cityinfo, cityName) => {
+export const saveSearch = (cityInfo, cityName) => {
     return {
         type: 'SAVE_SEARCH',
-        cityInfo: cityinfo,
+        cityInfo: cityInfo,
         cityName: cityName
+    }
+}
+export const drink = (water) => {
+    return {
+        type: 'DRINK_WATER',
+        water: water
     }
 }
